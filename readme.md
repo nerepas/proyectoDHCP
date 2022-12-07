@@ -62,3 +62,71 @@ Usamos el comando:
 
 
 Con esto, se nos descargará la imagen dhcpd y el contenedor se quedará levantado.
+
+
+## Bridge máquina virtual
+
+### Con rango de IPs
+
+Ponemos la máquina virtual en modo brige.
+
+![](imagenes/bridge.png)
+
+
+Nos aseguramos que en las configuraciones de red de la máquina esté en modo DHCP y que el contenedor este levantado.
+
+Abrimos la terminal de la máquina y escribimos lo siguiente:
+
+> ipconfig
+
+
+El DHCP nos asignará una ip contenida en el rango indicado en el fichero dhcp.conf.
+
+![](imagenes/dhcp.png)
+
+
+### Con IP Fija
+
+Para hacerlo con IP fija nos movemos al fichero dhcp.conf y borramos la línea de los rangos, es decir:
+
+> range 10.0.9.200 10.0.9.202;
+
+
+Además, modificaremos el group.
+
+Para ello nos iremos a los logs del contenedor. Buscaremos la ip 10.0.9.201 y copiaremos la MAC correspondiente.
+
+![](imagenes/mac.png)
+
+
+Ahora si, modificaremos el group del fichero dhcp.conf de la siguiente forma:
+
+~~~
+group {
+
+     default-lease-time 604800;
+     max-lease-time 691200;
+
+     host apache {
+         hardware ethernet 08:00:27:cd:dc:c5;
+         fixed-address 10.0.9.37;
+     }
+
+  }
+~~~
+
+Reiniciamos el contenedor.
+
+Volvemos a la máquina virtual y usamos el comando:
+
+> ipconfig /renew
+
+
+Posteriormente volvemos a usar:
+
+> ipconfig
+
+
+Nos mostrará la IP indicada en el group (10.0.9.37).
+
+![](imagenes/ipfija.png)
